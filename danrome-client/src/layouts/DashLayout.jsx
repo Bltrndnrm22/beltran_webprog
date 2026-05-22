@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiBox from '@mui/material/Box';
@@ -22,6 +22,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ArticleIcon from '@mui/icons-material/Article';
 import Button from '@mui/material/Button';
 
 const drawerWidth = 240;
@@ -38,6 +39,12 @@ const dashboardNavItems = [
     title: 'Reports',
     to: '/dashboard/reports',
     icon: <AssessmentIcon />,
+  },
+  {
+    label: 'Articles',
+    title: 'Articles',
+    to: '/dashboard/articles',
+    icon: <ArticleIcon />,
   },
   {
     label: 'Users',
@@ -159,6 +166,16 @@ const DashLayout = () => {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
   const navigate = useNavigate();
+  const currentType = String(localStorage.getItem('type') || '').toLowerCase();
+  const navItems = currentType === 'editor'
+    ? dashboardNavItems.filter((item) => item.to !== '/dashboard/users')
+    : dashboardNavItems;
+
+  useEffect(() => {
+    if (currentType === 'editor' && location.pathname === '/dashboard/users') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [currentType, location.pathname, navigate]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -220,7 +237,7 @@ const DashLayout = () => {
         </DrawerHeader>
         <Divider />
         <List>
-          {dashboardNavItems.map(({ label, to, icon }) => (
+          {navItems.map(({ label, to, icon }) => (
             <ListItem key={to} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 component={Link}

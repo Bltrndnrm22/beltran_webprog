@@ -1,9 +1,52 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createUser } from '../../services/UserService';
 
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
 
 const SignUpPage = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (password.trim().length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+
+    try {
+      await createUser({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        age: '18',
+        gender: 'other',
+        contactNumber: '09123456789',
+        email: email.trim().toLowerCase(),
+        role: 'editor',
+        username: email.trim().toLowerCase().split('@')[0] || firstName.trim().toLowerCase(),
+        password,
+        address: 'Not set',
+        isActive: true,
+      });
+
+      setSuccess('Account created. Redirecting to sign in...');
+      setTimeout(() => navigate('/auth/signin'), 900);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to create account.');
+    }
+  };
+
   return (
     <section className="overflow-hidden rounded-[1.6rem] border border-[#d6b0be] bg-white shadow-[0_20px_55px_rgba(78,23,44,0.16)]">
       <div className="border-b border-[#ead1da] bg-[#f4e6ec] px-7 py-6 text-zinc-900">
@@ -18,7 +61,7 @@ const SignUpPage = () => {
         </p>
       </div>
 
-      <form className="space-y-5 px-7 py-7">
+      <form className="space-y-5 px-7 py-7" onSubmit={handleSubmit}>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="first-name" className="text-sm font-semibold text-zinc-800">
@@ -30,6 +73,9 @@ const SignUpPage = () => {
               placeholder="John"
               autoComplete="given-name"
               className={inputClasses}
+              value={firstName}
+              onChange={(event) => setFirstName(event.target.value)}
+              required
             />
           </div>
           <div>
@@ -42,6 +88,9 @@ const SignUpPage = () => {
               placeholder="Ocray"
               autoComplete="family-name"
               className={inputClasses}
+              value={lastName}
+              onChange={(event) => setLastName(event.target.value)}
+              required
             />
           </div>
         </div>
@@ -56,6 +105,9 @@ const SignUpPage = () => {
             placeholder="you@example.com"
             autoComplete="email"
             className={inputClasses}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
           />
         </div>
 
@@ -69,6 +121,9 @@ const SignUpPage = () => {
             placeholder="Create your password"
             autoComplete="new-password"
             className={inputClasses}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
           />
           <p className="mt-2 text-xs leading-5 text-zinc-500">
             Use a secure password with letters, numbers, and symbols.
@@ -81,6 +136,8 @@ const SignUpPage = () => {
         >
           Create Account
         </button>
+        {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
+        {success ? <p className="text-sm font-medium text-green-700">{success}</p> : null}
 
         <div className="grid gap-3 pt-2 sm:grid-cols-2">
           <button

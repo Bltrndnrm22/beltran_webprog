@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../services/UserService';
 
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
@@ -11,16 +12,24 @@ const SignInPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setError('');
 
-    if (email === 'beltran@example.com' && password === 'beltran123') {
-      setError('');
+    try {
+      const { data } = await loginUser({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      localStorage.setItem('token', data.token || '');
+      localStorage.setItem('firstName', data.firstName || '');
+      localStorage.setItem('type', String(data.type || '').toLowerCase());
       navigate('/dashboard');
       return;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
     }
-
-    setError('Invalid email or password.');
   };
 
   return (
