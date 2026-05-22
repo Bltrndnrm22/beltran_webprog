@@ -1,9 +1,28 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
 
 const SignInPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (email === 'beltran@example.com' && password === 'beltran123') {
+      setError('');
+      navigate('/dashboard');
+      return;
+    }
+
+    setError('Invalid email or password.');
+  };
+
   return (
     <section className="overflow-hidden rounded-[1.6rem] border border-[#d6b0be] bg-white shadow-[0_20px_55px_rgba(78,23,44,0.16)]">
       <div className="border-b border-[#ead1da] bg-[#f4e6ec] px-7 py-6 text-zinc-900">
@@ -18,7 +37,7 @@ const SignInPage = () => {
         </p>
       </div>
 
-      <form className="space-y-5 px-7 py-7">
+      <form className="space-y-5 px-7 py-7" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="signin-email" className="text-sm font-semibold text-zinc-800">
             Email Address
@@ -29,6 +48,8 @@ const SignInPage = () => {
             placeholder="you@example.com"
             autoComplete="email"
             className={inputClasses}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
           />
         </div>
 
@@ -42,6 +63,8 @@ const SignInPage = () => {
             placeholder="Enter your password"
             autoComplete="current-password"
             className={inputClasses}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
           />
           <p className="mt-2 text-xs leading-5 text-zinc-500">
             Use at least 8 characters with letters, numbers, and symbols.
@@ -67,6 +90,10 @@ const SignInPage = () => {
         >
           Log In
         </button>
+
+        {error ? (
+          <p className="text-sm font-medium text-red-600">{error}</p>
+        ) : null}
 
         <div className="grid gap-3 pt-2 sm:grid-cols-2">
           <button
