@@ -5,16 +5,24 @@ import { useNavigate } from 'react-router-dom';
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
 
+const defaultCredentials = {
+  email: 'beltran@pogi.com',
+  password: 'beltran123',
+};
+
 const SignInPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(defaultCredentials.email);
+  const [password, setPassword] = useState(defaultCredentials.password);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (email === 'beltran@example.com' && password === 'beltran123') {
+    if (
+      email === defaultCredentials.email &&
+      password === defaultCredentials.password
+    ) {
       setError('');
       navigate('/dashboard');
       return;
