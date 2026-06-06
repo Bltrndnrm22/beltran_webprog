@@ -1,11 +1,10 @@
-import { NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const links = [
     { label: 'Home', to: '/'},
     { label: 'About', to: '/about'},
     { label: 'Articles', to: '/articles'},
-    { label: 'Sign In', to: '/auth/signin'},
-    { label: 'Sign Up', to: '/auth/signup'},
 ];
 
 const navLinkClassName = ({ isActive }) =>
@@ -17,6 +16,37 @@ const navLinkClassName = ({ isActive }) =>
 ].join(' ');
 
 const NavBar = () => {
+    const navigate = useNavigate();
+    const [auth, setAuth] = useState({
+        token: localStorage.getItem('token') || '',
+        type: String(localStorage.getItem('type') || '').toLowerCase(),
+    });
+
+    useEffect(() => {
+        const syncAuth = () => {
+            setAuth({
+                token: localStorage.getItem('token') || '',
+                type: String(localStorage.getItem('type') || '').toLowerCase(),
+            });
+        };
+
+        window.addEventListener('storage', syncAuth);
+        window.addEventListener('auth-change', syncAuth);
+
+        return () => {
+            window.removeEventListener('storage', syncAuth);
+            window.removeEventListener('auth-change', syncAuth);
+        };
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('firstName');
+        localStorage.removeItem('type');
+        window.dispatchEvent(new Event('auth-change'));
+        navigate('/');
+    };
+
     return (
         <header className="fixed inset-x-0 top-0 z-50 border-b-2 border-zinc-900 bg-zinc-100/95 backdrop-blur">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -35,6 +65,25 @@ const NavBar = () => {
                             {link.label}
                         </NavLink>
                     ))}
+                    {auth.token && auth.type === 'admin' ? (
+                        <NavLink to="/dashboard" className={navLinkClassName}>
+                            Dashboard
+                        </NavLink>
+                    ) : null}
+                    {auth.token ? (
+                        <button type="button" onClick={handleLogout} className={navLinkClassName({ isActive: false })}>
+                            Logout
+                        </button>
+                    ) : (
+                        <>
+                            <NavLink to="/auth/signin" className={navLinkClassName}>
+                                Sign In
+                            </NavLink>
+                            <NavLink to="/auth/signup" className={navLinkClassName}>
+                                Sign Up
+                            </NavLink>
+                        </>
+                    )}
                 </nav>
             </div>
         </header>

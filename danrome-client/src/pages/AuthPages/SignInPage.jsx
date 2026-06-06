@@ -6,9 +6,14 @@ import { loginUser } from '../../services/UserService';
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
 
+const defaultCredentials = {
+  email: 'beltran@admin.com',
+  password: 'beltran123',
+};
+
 const SignInPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(defaultCredentials.email);
+  const [password, setPassword] = useState(defaultCredentials.password);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -24,11 +29,13 @@ const SignInPage = () => {
 
       localStorage.setItem('token', data.token || '');
       localStorage.setItem('firstName', data.firstName || '');
-      localStorage.setItem('type', String(data.type || '').toLowerCase());
-      navigate('/dashboard');
+      const userType = String(data.type || '').toLowerCase();
+      localStorage.setItem('type', userType);
+      window.dispatchEvent(new Event('auth-change'));
+      navigate(userType === 'admin' ? '/dashboard' : '/', { replace: true });
       return;
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     }
   };
 

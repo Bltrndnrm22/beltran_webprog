@@ -4,13 +4,19 @@ const HOST = String(constants.HOST || '').replace(/\/$/, '');
 const BASE_URL = `${HOST}/api/users`;
 
 const request = async (path, options = {}) => {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
+  } catch {
+    throw new Error(`Cannot connect to API at ${BASE_URL}. Check that danrome-server is running.`);
+  }
 
   const data = await response.json().catch(() => ({}));
 
@@ -26,6 +32,8 @@ const request = async (path, options = {}) => {
 export const fetchUsers = () => request('/');
 export const createUser = (user) =>
   request('/', { method: 'POST', body: JSON.stringify(user) });
+export const signupUser = (user) =>
+  request('/signup', { method: 'POST', body: JSON.stringify(user) });
 export const updateUser = (id, user) =>
   request(`/${id}`, { method: 'PUT', body: JSON.stringify(user) });
 export const deleteUser = (id) => request(`/${id}`, { method: 'DELETE' });

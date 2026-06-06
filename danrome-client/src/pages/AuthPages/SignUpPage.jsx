@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUser } from '../../services/UserService';
+import { signupUser } from '../../services/UserService';
 
 const inputClasses =
   'mt-2 w-full rounded-lg border border-[#d7b6c1] bg-white px-4 py-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-[#9e5d70] focus:ring-4 focus:ring-[#f1dbe2]';
 
 const SignUpPage = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [firstName, setFirstName] = useState('Joshua');
+  const [lastName, setLastName] = useState('Garcia');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,24 +26,26 @@ const SignUpPage = () => {
     }
 
     try {
-      await createUser({
+      const { data } = await signupUser({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         age: '18',
         gender: 'other',
         contactNumber: '09123456789',
         email: email.trim().toLowerCase(),
-        role: 'editor',
         username: email.trim().toLowerCase().split('@')[0] || firstName.trim().toLowerCase(),
         password,
         address: 'Not set',
-        isActive: true,
       });
 
-      setSuccess('Account created. Redirecting to sign in...');
-      setTimeout(() => navigate('/auth/signin'), 900);
+      localStorage.setItem('token', data.token || '');
+      localStorage.setItem('firstName', data.firstName || '');
+      localStorage.setItem('type', String(data.type || 'viewer').toLowerCase());
+      window.dispatchEvent(new Event('auth-change'));
+      setSuccess('Account created. Redirecting to home...');
+      setTimeout(() => navigate('/', { replace: true }), 700);
     } catch (err) {
-      setError(err.response?.data?.message || 'Unable to create account.');
+      setError(err.response?.data?.message || err.message || 'Unable to create account.');
     }
   };
 

@@ -1,9 +1,10 @@
 import { useParams } from 'react-router-dom';
 import Button from '../components/Button';
-import articles from '../article-content.js';
+import { getArticles } from '../../services/ArticleService';
 
 function ArticlePage() {
   const { name } = useParams();
+  const articles = getArticles();
   const article = articles.find((articleItem) => articleItem.name === name);
 
   if (!article) {
@@ -24,7 +25,7 @@ function ArticlePage() {
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="max-w-3xl">
           <div className="mb-4">
-            <Button to="/articles">← Back to Articles</Button>
+            <Button to="/articles">Back to Articles</Button>
           </div>
 
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiBox from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -166,16 +166,19 @@ const DashLayout = () => {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
   const currentType = String(localStorage.getItem('type') || '').toLowerCase();
-  const navItems = currentType === 'editor'
-    ? dashboardNavItems.filter((item) => item.to !== '/dashboard/users')
-    : dashboardNavItems;
+  const navItems = dashboardNavItems;
 
   useEffect(() => {
-    if (currentType === 'editor' && location.pathname === '/dashboard/users') {
-      navigate('/dashboard', { replace: true });
+    if (!token || currentType !== 'admin') {
+      navigate('/', { replace: true });
     }
-  }, [currentType, location.pathname, navigate]);
+  }, [currentType, navigate, token]);
+
+  if (!token || currentType !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -186,6 +189,10 @@ const DashLayout = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('type');
+    window.dispatchEvent(new Event('auth-change'));
     navigate('/');
   };
 

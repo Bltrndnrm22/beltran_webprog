@@ -1,0 +1,12 @@
+{
+  "name": "danrome",
+  "private": true,
+  "workspaces": [
+    "danrome-client",
+    "danrome-server"
+  ],
+  "scripts": {
+    "build": "npm --prefix danrome-client run build",
+    "start": "npm --prefix danrome-server start"
+  }
+}
